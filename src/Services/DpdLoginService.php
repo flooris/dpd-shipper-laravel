@@ -12,6 +12,7 @@ use SoapHeader;
 
 class DpdLoginService
 {
+    const CACHE_KEY_API_TOKEN = 'FLOORIS_DPD_API_TOKEN';
     const SERVICE_NAME = 'LoginService';
     const SERVICE_VERSION = 'V20';
 
@@ -31,11 +32,9 @@ class DpdLoginService
      */
     public function getApiToken(): string
     {
-        //        $token_cache_key = $this->getApiTokenCacheKey();
-        //
-        //        if (Cache::has($token_cache_key)) {
-        //            return Cache::get($token_cache_key);
-        //        }
+        if (Cache::has(self::CACHE_KEY_API_TOKEN)) {
+            return Cache::get(self::CACHE_KEY_API_TOKEN);
+        }
 
         $serviceBaseUrl = $this->connector->getBaseUrl();
         $serviceName    = self::SERVICE_NAME;
@@ -51,11 +50,15 @@ class DpdLoginService
             throw new DpdAuthenticationException('DPD authentication error', 0, $e);
         }
 
-        $api_token  = $result->return->authToken;
-        $expires_at = Carbon::now()->addMinutes(120);
+        $token = $result?->return?->authToken;
+        if (! $token) {
+            throw new DpdAuthenticationException('DPD authentication error - API token is invalid!');
+        }
 
-        //        Cache::put($token_cache_key, $api_token, $expires_at);
+        $expiresAt = Carbon::now()->addMinutes(120);
 
-        return $api_token;
+        Cache::put(self::CACHE_KEY_API_TOKEN, $token, $expiresAt);
+
+        return $token;
     }
 }
