@@ -16,6 +16,7 @@ and get things up and running.
 
 - Initial setup
 - Added Laravel packages (dependencies) for using Cache, Collection and Config
+- Utilize Cache for caching the DPD Shipper API Token.
 - Added DpdShipmentResponseException
 - Added DpdShipmentService
 - Refactored code to the AbstractDpdService for SOAP logic, which also refactored the DpdLoginService
@@ -31,3 +32,4 @@ and get things up and running.
 
 - Added DPD Shipper Login service
 - Added DPD create shipment service
+- Added validation of the LoginService response with the API token, throw a DpdAuthenticationException when not valid.
