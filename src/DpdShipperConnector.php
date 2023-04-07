@@ -2,19 +2,25 @@
 
 namespace Flooris\DpdShipper;
 
+use SoapHeader;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Flooris\DpdShipper\Services\DpdLoginService;
+use Flooris\DpdShipper\Services\DpdShipmentService;
 
 class DpdShipperConnector
 {
+    private const CACHE_KEY_API_TOKEN = 'FLOORIS_DPD_API_TOKEN';
+
     public function __construct(
-        private string $id,
-        private string $password,
-        private string $depotNumber,
-        private string $baseUrl,
-        private string $messageLanguage = 'en_US'
+        public readonly string $id,
+        public readonly string $password,
+        public readonly string $depotNumber,
+        public readonly string $baseUrl,
+        public readonly string $authUrl,
+        public readonly string $messageLanguage = 'en_US'
     )
     {
-
     }
 
     public function loginService(): DpdLoginService
@@ -22,37 +28,41 @@ class DpdShipperConnector
         return new DpdLoginService($this);
     }
 
-    public function getSoapHeaderBody(): array
+    public function shipmentService(): DpdShipmentService
     {
-        return [
-            'delisId'         => $this->getId(),
-            'password'        => $this->getPassword(),
-            'messageLanguage' => $this->getMessageLanguage(),
+        return new DpdShipmentService($this);
+    }
+
+    public function getSoapAuthenticationHeader(): SOAPHeader
+    {
+        $soapHeaderBody = [
+            'delisId'         => $this->id,
+            'authToken'       => $this->loginService()->getApiToken(),
+            'messageLanguage' => $this->messageLanguage,
         ];
+
+        return new SOAPHeader($this->authUrl, 'authentication', $soapHeaderBody, false);
+
     }
 
-    public function getBaseUrl(): string
+    public function getApiTokenFromCache(): ?string
     {
-        return $this->baseUrl;
+        if (Cache::has(self::CACHE_KEY_API_TOKEN)) {
+            return Cache::get(self::CACHE_KEY_API_TOKEN);
+        }
+
+        return null;
     }
 
-    private function getId(): string
+    public function storeApiTokenInCache(string $token): bool
     {
-        return $this->id;
+        $expiresAt = Carbon::now()->addMinutes(120);
+
+        return Cache::put(self::CACHE_KEY_API_TOKEN, $token, $expiresAt);
     }
 
-    private function getPassword(): string
+    public function forgetApiTokenFromCache(): bool
     {
-        return $this->password;
-    }
-
-    private function getDepotNumber(): string
-    {
-        return $this->depotNumber;
-    }
-
-    private function getMessageLanguage(): string
-    {
-        return $this->messageLanguage;
+        return Cache::forget(self::CACHE_KEY_API_TOKEN);
     }
 }
