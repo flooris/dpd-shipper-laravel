@@ -1,0 +1,30 @@
+{
+    "name": "flooris/dpd-shipper-laravel",
+    "description": "Laravel package for connecting to DPD Shipper API",
+    "require": {
+        "php": "^8.1",
+        "spatie/laravel-package-tools": "^1.9.2",
+        "illuminate/cache": "^10.6"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Flooris\\DpdShipper\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Flooris\\DpdShipper\\DpdShipperServiceProvider"
+            ]
+        }
+    },
+    "authors": [
+        {
+            "name": "Florian Kwakkenbos",
+            "email": "f.kwakkenbos@flooris.nl"
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
