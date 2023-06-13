@@ -8,8 +8,8 @@ class DpdShipmentResponseException extends \Exception
 {
     public function __construct(
         string $message,
-        public ?array $shipmentData,
-        public ?\StdClass $orderResult,
+        public ?array $shipmentData = null,
+        public ?\StdClass $orderResult = null,
         int $code = 0,
         ?Throwable $previous = null
     )
