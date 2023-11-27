@@ -43,6 +43,15 @@ class DpdShipmentService extends AbstractDpdService
                 'weight'                   => $parcels->getWeight(),
             ];
 
+            if ($shipmentProduct->isDpdFresh()) {
+                $parcelData['goodsExpirationDate'] = $parcels->getExpirationDate()->format('Ymd');
+
+                if($shipmentProduct->getProductType()->hasMinMaxTemperatures()) {
+                    $parcelData['goodsMinimumStorageTemperature'] = $shipmentProduct->getProductType()->getMinimumStorageTemperature();
+                    $parcelData['goodsMaximumStorageTemperature'] = $shipmentProduct->getProductType()->getMaximumStorageTemperature();
+                }
+            }
+
             // ToDo: Implement international shipping
 
             $parcelsArray[] = $parcelData;
@@ -79,6 +88,10 @@ class DpdShipmentService extends AbstractDpdService
 
         if ($shipmentProduct->useSaturdayShipping()) {
             $shipmentData['order']['productAndServiceData']['saturdayDelivery'] = true;
+        }
+
+        if ($shipmentProduct->isDpdFresh()) {
+            $shipmentData['order']['productAndServiceData']['tour'] = $shipmentProduct->getProductType()->getTour();
         }
 
         try {
