@@ -2,6 +2,7 @@
 
 namespace Flooris\DpdShipper\Services;
 
+use Flooris\DpdShipper\Objects\DpdPaperFormat;
 use SoapFault;
 use Flooris\DpdShipper\Objects\DpdSender;
 use Flooris\DpdShipper\Objects\DpdPredict;
@@ -20,6 +21,13 @@ class DpdShipmentService extends AbstractDpdService
 
     private string $printerLanguage = 'PDF';
     private string $paperFormat = 'A4';
+
+    public function setPaperFormat(DpdPaperFormat $paperFormat): self
+    {
+        $this->paperFormat = $paperFormat->value;
+
+        return $this;
+    }
 
     /**
      * @throws SoapFault
